@@ -1,0 +1,248 @@
+// --- By Geo Magadan | nepotu.ro --- //
+// ---        version 1.2        --- //
+// OnOff Scheduler - OnOff Appliances Management Rules
+import java.util.concurrent.locks.ReentrantLock
+
+// Global variables
+var ReentrantLock onoffCtlLock = new ReentrantLock()
+var ReentrantLock onoffQueueLock = new ReentrantLock()
+var Timer onoffCtlTimer = null
+
+// OnOff Scheduler - OnOff Appliances Management
+rule "OnOff Scheduler - OnOff Appliances Management"
+when
+    Time   cron "0 0/1 * * * ?"            or
+    Item   OnOff_Mode received update      or
+    Item   OnOff_Mode received command     or
+    Item   OnOff_Schedule received update  or
+    Item   OnOff_Schedule received command
+then
+    if (onoffCtlLock.tryLock()) {
+        try {
+            //onoffCtlLock.lock()
+            if (OnOff_Mode.state == 'SCHEDULE') {
+                val DateTime timeNow = now()
+                val Number trimToMin = 60000
+                var String triggeredBy = null
+                try {
+                    triggeredBy = triggeringItem.name
+                } catch(Exception e) {
+                    triggeredBy = receivedCommand
+                }
+                // Cancel the timer if the command was received on OnOff_Mode or OnOff_Schedule change
+                if (onoffCtlTimer !== null && triggeredBy !== null) {
+                    onoffCtlTimer.cancel()
+                    onoffCtlTimer = null
+                }
+                if (onoffCtlTimer === null || onoffCtlTimer.hasTerminated) {
+                    var String currentTime = null
+                    var String onoffQueue = null
+                    var DateTime upToTime = null
+                    var DateTime sleepToTime = null
+                    if (timeNow.getHourOfDay() < 10) {
+                        currentTime = 'T0' + timeNow.getHourOfDay() + timeNow.getMinuteOfHour
+                    } else {
+                        currentTime = 'T' + timeNow.getHourOfDay()+ timeNow.getMinuteOfHour
+                    }
+                    if (OnOff_Schedule.state != NULL) {
+                        grpOnOff.members.forEach [ targetItem | {
+                                var String jsonOnOffSchedule = (OnOff_Schedule.state as StringType).toString
+                                var String jsonItemSchedule = null
+                                var String jsonItemDaySchedule = null
+                                // Parse the item schedule
+                                if (jsonOnOffSchedule.contains('"' + targetItem.name.toString + '"')) {
+                                    jsonItemSchedule = transform('JSONPATH', '$.' + targetItem.name, jsonOnOffSchedule)
+                                    // Replace the equal with colon
+                                    jsonItemSchedule = jsonItemSchedule.replaceAll('=', ':')
+                                    if (jsonItemSchedule !== null && jsonItemSchedule != '') {
+                                        var Number i = 0
+                                        var String nextDay = null
+                                        var String prevDay = null
+                                        var String nextTime = null
+                                        var String prevTime = null
+                                        var Number nextDuration = null
+                                        var Number prevDuration = null
+                                        var String nextTimeDuration = null
+                                        var String[] nextTimeDurationArray = null
+                                        var String[] jsonItemDayScheduleArray = null
+                                        // Loop: week days
+                                        while ((i=i+1) <= 7) {
+                                            // Parse the (item) daily schedule
+                                            var Number j = -1
+                                            if (jsonItemSchedule.contains('D' + i)) {
+                                                jsonItemDaySchedule = transform('JSONPATH', '$.D'+i, jsonItemSchedule)
+                                                // Remove empty objects
+                                                jsonItemDaySchedule = jsonItemDaySchedule.replaceAll('[{}]', '')
+                                                if (jsonItemDaySchedule !== null && jsonItemDaySchedule != '') {
+                                                    jsonItemDayScheduleArray = jsonItemDaySchedule.split(',')
+                                                    // Loop: each day schedule
+                                                    while ((j=j+1) < jsonItemDayScheduleArray.length) {
+                                                        nextDay = 'D' + i
+                                                        nextTimeDuration = jsonItemDayScheduleArray.get(j.intValue()).replaceAll(' ', '')
+                                                        nextTimeDurationArray = nextTimeDuration.split('=')
+                                                        nextTime = nextTimeDurationArray.get(0)
+                                                        nextDuration = Integer.valueOf(nextTimeDurationArray.get(1))
+                                                        if (prevDay !== null && ('D' + i + nextTime) > ('D' + timeNow.getDayOfWeek + currentTime)) {
+                                                            // Force exit from both i and j while loops
+                                                            j = jsonItemDayScheduleArray.length
+                                                            i = 8
+                                                        } else if (('D' + i + nextTime) <= ('D' + timeNow.getDayOfWeek + currentTime)) {
+                                                            prevDay = 'D' + i
+                                                            prevTime = nextTime
+                                                            prevDuration = nextDuration
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        // If no previous value found so far, then use the last available
+                                        if (prevDay === null && nextTime !== null && nextDuration !== null) {
+                                            prevDay = nextDay
+                                            prevTime = nextTime
+                                            prevDuration = nextDuration
+                                        }
+                                        // Process the schedule values
+                                        if (prevDay !== null && prevTime !== null && prevDuration !== null) {
+                                            // Check to see if the state should be ON for current item
+                                            // The appliance startTime is computed from the Dx-Txxxx pair
+                                            var Number upToStart = null
+                                            var DateTime startTime = null
+                                            if (timeNow.getDayOfWeek <= Integer.valueOf(prevDay.substring(1,2))) {
+                                                upToStart = Integer.valueOf(prevDay.substring(1,2)) - timeNow.getDayOfWeek
+                                            } else {
+                                                upToStart = 7 - timeNow.getDayOfWeek + Integer.valueOf(prevDay.substring(1,2))
+                                            }
+                                            // upToStart = minutes since midnight until the next schedule change (start appliance)
+                                            upToStart = upToStart*24*60 + Integer.valueOf(prevTime.substring(1,3))*60 + Integer.valueOf(prevTime.substring(3,5))
+                                            startTime = timeNow.withTimeAtStartOfDay().plusMinutes(upToStart.intValue())
+                                            // If timeNow is between schedule start time and schedule start time + duration, then change the state to ON
+                                            if ((startTime.millis/trimToMin).intValue() <= (timeNow.millis/trimToMin).intValue() && (timeNow.millis/trimToMin).intValue() < (startTime.millis/trimToMin + prevDuration).intValue()) {
+                                                // If not already ON, then change the state to ON
+                                                if (targetItem.state != ON) {
+                                                    sendCommand(targetItem,ON)
+                                                }
+                                                if (upToTime === null) {
+                                                    // Init the queue
+                                                    upToTime = startTime.plusMinutes(prevDuration)
+                                                    onoffQueue = targetItem.name
+                                                } else {
+                                                    if ((upToTime.millis/trimToMin).intValue() > (startTime.plusMinutes(prevDuration).millis/trimToMin).intValue()) {
+                                                        // Reset the queue
+                                                        upToTime = startTime.plusMinutes(prevDuration)
+                                                        onoffQueue = targetItem.name
+                                                    } else if ((upToTime.millis/trimToMin).intValue() == (startTime.plusMinutes(prevDuration).millis/trimToMin).intValue()) {
+                                                        // Add item to queue
+                                                        onoffQueue = onoffQueue + ';' + targetItem.name
+                                                    }
+                                                }
+                                            }
+                                            // The timer purpose is to change the state to OFF or to put the thread to sleep until the next state change to ON
+                                            // Since we are using a cron that is executed every minute we want the timer set to expire when the next change should be triggered, regardless of its status ON or OFF
+                                            // If nothing in queue so far, then the timer for sleep should be computed
+                                            if (upToTime === null) {
+                                                // Validate next. If no other future values, then use the first one available as next
+                                                if (prevDay == nextDay && prevTime == nextTime) {
+                                                    i = 0
+                                                    while ((i=i+1) <= 7) {
+                                                        if (jsonItemSchedule.contains('D' + i)) {
+                                                            jsonItemDaySchedule = transform('JSONPATH', '$.D'+i, jsonItemSchedule)
+                                                            // Remove empty objects
+                                                            jsonItemDaySchedule = jsonItemDaySchedule.replaceAll('[{}]', '')
+                                                            if (jsonItemDaySchedule !== null && jsonItemDaySchedule != '') {
+                                                                nextDay = 'D' + i
+                                                                jsonItemDayScheduleArray = jsonItemDaySchedule.split(',')
+                                                                nextTimeDuration = jsonItemDayScheduleArray.get(0)
+                                                                nextTimeDurationArray = nextTimeDuration.split('=')
+                                                                nextTime = nextTimeDurationArray.get(0).replaceAll(' ', '')
+                                                                nextDuration = Integer.valueOf(nextTimeDurationArray.get(1))
+                                                                i = 8
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                // The sleepToTime should be equal to first schedule change time
+                                                if (timeNow.getDayOfWeek <= Integer.valueOf(nextDay.substring(1,2))) {
+                                                    upToStart = Integer.valueOf(nextDay.substring(1,2)) - timeNow.getDayOfWeek
+                                                } else {
+                                                    upToStart = 7 - timeNow.getDayOfWeek + Integer.valueOf(nextDay.substring(1,2))
+                                                }
+                                                upToStart = upToStart*24*60 + Integer.valueOf(nextTime.substring(1,3))*60 + Integer.valueOf(nextTime.substring(3,5))
+                                                startTime = timeNow.withTimeAtStartOfDay().plusMinutes(upToStart.intValue())
+                                                if (sleepToTime === null) {
+                                                    sleepToTime = startTime
+                                                } else if ((startTime.millis/trimToMin).intValue() < (sleepToTime.millis/trimToMin).intValue()) {
+                                                    sleepToTime = startTime
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                        // Activate the timer to change the states to OFF if the queue and upToTime are set
+                        if (upToTime !== null && onoffQueue !== null && onoffQueue != '') {
+                            logInfo('onoff-control.rules', '[OnOff-Schedule] Next change @' + upToTime + ' | Changes : ' + onoffQueue)
+                            OnOff_Next_Change_Time.postUpdate(upToTime.toString)
+                            onoffCtlTimer = createTimer(upToTime, [|
+                                    OnOff_Queue.postUpdate(onoffQueue)
+                                    onoffCtlTimer.cancel()
+                                    onoffCtlTimer = null
+                                ])
+                        }
+                        // Active the timer to simulate the thread sleep
+                        if (upToTime === null && sleepToTime !== null) {
+                            logInfo('onoff-control.rules', '[OnOff-Schedule] [SLEEPING] Next change @' + sleepToTime)
+                            OnOff_Next_Change_Time.postUpdate(sleepToTime.toString)
+                            onoffCtlTimer = createTimer(sleepToTime, [|
+                                    sleepToTime = null
+                                    logInfo('onoff-control.rules', '[OnOff-Schedule] [WAKING UP] Sleep timer expired')
+                                    onoffCtlTimer.cancel()
+                                    onoffCtlTimer = null
+                                ])
+                        }
+                    }
+                }
+            } else {
+                // Cancel the timer
+                if (onoffCtlTimer !== null) {
+                    onoffCtlTimer.cancel()
+                    onoffCtlTimer = null
+                }
+            }
+        } catch(Exception e) {
+            logInfo('onoff-control.rules', 'OnOff Appliances control error: ' + e.toString)
+        } finally {
+            onoffCtlLock.unlock()
+        }
+    }
+end
+
+// OnOff Scheduler - A queue item, used to switch the state for multiple items at the same time
+rule "OnOff Scheduler -  OnOff Appliances Queue"
+when
+    Item OnOff_Queue received update  or
+    Item OnOff_Queue received command or
+    Item OnOff_Queue changed
+then
+    if (onoffQueueLock.tryLock()) {
+        try {
+            if (OnOff_Queue.state != NULL && OnOff_Queue.state != '') {
+                val String queueStr = ';' + OnOff_Queue.state + ';'
+                grpOnOff.members.forEach [ targetItem | {
+                        if (queueStr.contains(';' + targetItem.name + ';')) {
+                            logInfo('onoff-control.rules', 'Switch OFF item ' + targetItem.name)
+                            sendCommand(targetItem,OFF)
+                        }
+                    }
+                ]
+                // Cleanup the queue
+                OnOff_Queue.postUpdate('')
+                logInfo('onoff-control.rules', 'OnOff Queue cleaned up')
+            }
+        } catch(Exception e) {
+                logInfo('onoff-control.rules', 'OnOff Appliances Queue control error: ' + e.toString)
+        } finally {
+                onoffQueueLock.unlock()
+        }
+    }
+end

@@ -1,0 +1,118 @@
+{
+    "name": "OH Scheduler",
+    "author": "Geo Magadan | nepotu.ro",
+    "description": "A simple widget for Virtual Thermostats and/or On/Off Appliances scheduling | v=1.0-RC0",
+    "settings": [
+        {
+            "type": "choice",
+            "id": "type",
+            "label": "Scheduler Type",
+            "default": "Thermostat",
+            "choices": "Thermostat,OnOff",
+            "description": "Scheduler type: Virtual Thermostat or On/Off Appliance"
+        },
+        {
+            "type": "item",
+            "id": "storeItem",
+            "label": "Schedule Store Item",
+            "description": "OpenHab item that will store the schedule"
+        },
+        {
+            "type": "string",
+            "id": "itemsList",
+            "label": "Items",
+            "description": "Items configuration as array of objects (e.g. [{\"setItem\": \"TargetItem\", \"label\": \"Item Label\", \"readItem\": \"ReadItem\"}])",
+            "default": "[{\"setItem\": \"TargetItem\", \"label\": \"Item Label\", \"readItem\": \"ReadItem\"}]"
+        },
+        {
+            "type": "number",
+            "id": "hStep",
+            "label": "Hour Step",
+            "description": "Hour Step (e.g. 1 Hour)",
+            "default": 1
+        },
+        {
+            "type": "number",
+            "id": "mStep",
+            "label": "Minute Step",
+            "description": "Minute Step (e.g. 5 Minutes)",
+            "default": 5
+        },
+        {
+            "type": "item",
+            "id": "modeItem",
+            "label": "Running Mode Item",
+            "description": "OpenHab item that stores the Running Mode",
+            "default": "N/A"
+        },
+        {
+            "type": "string",
+            "id": "modes",
+            "label": "Running Modes",
+            "description": "Array of custom running modes (e.g.  [\"OFF\",\"MANUAL\",\"AUTO\",\"COOL\",\"HEAT\"]). If empty, then the default will be used."
+        },
+        {
+            "type": "choice",
+            "id": "tempUnit",
+            "label": "Temperature Unit",
+            "default": "°C",
+            "description": "Temperature unit: Celsius (°C) or Fahrenheit (°F)",
+            "choices": "°C,°F"
+        },
+        {
+            "type": "choice",
+            "id": "tempStep",
+            "label": "Temperature Step",
+            "default": "1",
+            "choices": "0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1",
+            "description": "Temperature Control Step"
+        },
+        {
+            "type": "number",
+            "id": "tempMin",
+            "label": "Min Temperature",
+            "description": "Minimum Temperature",
+            "default": 18
+        },
+        {
+            "type": "number",
+            "id": "tempMax",
+            "label": "Max Temperature",
+            "description": "Maximim Temperature",
+            "default": 30
+        },
+        {
+            "type": "number",
+            "id": "tempSet",
+            "label": "Target Temperature",
+            "description": "Default Target Temperature",
+            "default": 23
+        },
+        {
+            "type": "checkbox",
+            "description": "Tick the box in order to hide the Running Mode select list.",
+            "label": "Hide Running Mode",
+            "id": "runningModeHidden"
+        },
+        {
+            "type": "checkbox",
+            "id": "statusHidden",
+            "label": "Hide Status Tab",
+            "description": "Tick the box in order to hide the Status tab."
+        },
+        {
+            "type": "checkbox",
+            "id": "statusLocked",
+            "label": "Disable Target Temp Changes on Status tab",
+            "description": "Tick this box in order to make the knobs on Status tab read-only. However this will not apply if the Running Mode is set to MANUAL.",
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "debug",
+            "label": "Enable Debug",
+            "description": "Tick the box in order to print in console all the objects used by this widget, once it is loaded."
+        }
+    ],
+    "template": "<div oc-lazy-load=\"{name: 'OHSchedulerCtl', files: ['/static/habpanel/scheduler/vis.min.js?v=4.21.0','/static/habpanel/scheduler/angular-vis.js?v=4.16.0','/static/habpanel/scheduler/ohscheduler.js?v=1.0-RC0','/static/habpanel/scheduler/ohscheduler.css?v=1.0-RC0'], serie: true, cache: false}\">\n    <div ng-controller=\"OHSchedMainCtl as ohs\">\n        <widget-scheduler conf=\"{{config}}\"></widget-scheduler>\n    </div>\n</div>"
+}

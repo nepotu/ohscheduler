@@ -1,0 +1,185 @@
+<div class="OHScheduler">
+    <div class="container-fluid OHScheduler-container" ng-if="ohs.conf.initComplete&&ohs.conf.items>0" ng-init="ohs.svg='/static/habpanel/scheduler/ohscheduler.svg?v='+ohs.conf.version">
+        <uib-tabset active="ohs.conf.tabIdx" justified="true">
+            <uib-tab index="0" select="ohs.changeViewTab(0)" heading="Status" ng-if="::(!ohs.conf.statusHidden)">
+                <br />
+                <div class="container-ohs">
+                    <div class="row">
+                        <div ng-repeat="(ohsKnobKey,ohsKnobData) in ohs.knobs" ng-if="(ohsKnobKey != 'setTemp')&&(ohs.conf.type=='Thermostat')">
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ng-if="(getItem(ohsKnobKey) != 'N/A')" ng-init="ohs.updateKnobValue(ohsKnobKey,ohsKnobData.setItem);">
+                                <span class="schedule-label">{{ohsKnobData.label}}</span>
+                                <br />
+                                <div class="knob-container">
+                                    <ui-knob id="{{ohsKnobKey}}" options="ohsKnobData.options" value="ohsKnobData.value"></ui-knob>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-repeat="switchItem in ohs.itemsList" ng-if="ohs.conf.type=='OnOff'">
+                            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+                                <widget-switch ng-model="switchItem.model"></widget-switch>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </uib-tab>
+            <uib-tab index="1" select="ohs.changeViewTab(1)" heading="Schedule">
+                <br />
+                <div class="container-ohs">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="btn-group" uib-dropdown keyboard-nav>
+                                <button id="simple-btn-keyboard-nav" type="button" class="btn btn-ohs" uib-dropdown-toggle>
+                                    <span class="btn-ohs-label">Schedule for:</span> <span class="btn-ohs-value">{{ohs.conf.selItemLabel}}</span> <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav">
+                                    <li role="menuitem" ng-repeat="scheduleItem in ohs.itemsList" ng-click="ohs.selectItem(scheduleItem);"><a>{{scheduleItem.label}}</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="visible-xs" style="clear: both;">&nbsp;</div>
+                        <div class="visible-lg col-lg-4"></div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                            <div class="btn-group btn-group-panel">
+                                <button type="button" class="btn-panel border-right" ng-disabled="!ohs.timeline.loaded" ng-click="ohs.stepWindow(-1)">
+                                    <svg class="panel-icon"><use xlink:href="" ng-href="{{ohs.svg}}#rewind" /></svg>
+                                </button>
+                                <button type="button" class="btn-panel border-right" ng-disabled="!ohs.timeline.loaded" ng-click="ohs.stepWindow(1)">
+                                    <svg class="panel-icon"><use xlink:href="" ng-href="{{ohs.svg}}#forward" /></svg>
+                                </button>
+                                <button type="button" class="btn-panel border-right" ng-disabled="!ohs.timeline.loaded" ng-click="ohs.zoomWindow(-1)">
+                                    <svg class="panel-icon"><use xlink:href="" ng-href="{{ohs.svg}}#search-minus" /></svg>
+                                </button>
+                                <button type="button" class="btn-panel" ng-disabled="!ohs.timeline.loaded" ng-click="ohs.zoomWindow(1)">
+                                    <svg class="panel-icon"><use xlink:href="" ng-href="{{ohs.svg}}#search-plus" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">&nbsp;</div>
+                    </div>
+                    <div class="row">
+                        <vis-timeline ng-show="ohs.timeline.loaded" data="ohs.timeline.data" options="ohs.timeline.options" events="ohs.timelineEvents"></vis-timeline>
+                    </div>
+                </div>
+            </uib-tab>
+            <uib-tab index="2" select="ohs.changeViewTab(2)" heading="Add/Edit">
+                <br />
+                <div class="container-ohs">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            <div class="row">
+                                <div class="btn-group btn-group-justified">
+                                    <label class="btn btn-item" ng-repeat="ohsItem in ohs.itemsList" ng-model="ohsItem.checked" uib-btn-checkbox ng-change="ohs.selectItem(ohsItem);">{{ohsItem.label}}</label>
+                                </div>
+                            </div>
+                            <div class="row">&nbsp;</div>
+                            <div class="row">
+                                <div class="btn-group btn-group-justified">
+                                    <label class="btn btn-day" ng-repeat="ohsDay in ohs.days" ng-model="ohsDay.checked" uib-btn-checkbox ng-change="ohs.selectDay(ohsDay);">{{ohsDay.shortLabel}}</label>
+                                </div>
+                            </div>
+                            <div class="row">&nbsp;</div>
+                            <div class="row" ng-if="ohs.conf.type=='Thermostat'">
+                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 addedit-time">
+                                    <svg class="addedit-icon"><use xlink:href="" ng-href="{{ohs.svg}}#time" /></svg>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                    <div uib-timepicker ng-model="ohs.time.time" hour-step="ohs.time.hstep" minute-step="ohs.time.mstep" show-seconds="false" show-meridian="false" readonlyInput="true"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="visible-xs" style="clear: both;">&nbsp;</div>
+                        <div class="visible-xs" style="clear: both;">&nbsp;</div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" ng-show="ohs.conf.type=='Thermostat'">
+                            <div class="row">
+                                <div class="knob-container">
+                                    <ui-knob options="ohs.knobs.setTemp.options" value="ohs.knobs.setTemp.value"></ui-knob>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6" ng-show="ohs.conf.type=='OnOff'">
+                            <div class="row">
+                                <div class="col-xs-4 col-sm-4 col-md-2 col-lg-2 addedit-time no-float">
+                                    <svg class="addedit-icon"><use xlink:href="" ng-href="{{ohs.svg}}#time" /></svg>
+                                </div>
+                                <div class="col-xs-8 col-sm-8 col-md-4 col-lg-4 no-float">
+                                    <div uib-timepicker ng-model="ohs.time.time" hour-step="ohs.time.hstep" minute-step="ohs.time.mstep" show-seconds="false" show-meridian="false" readonlyInput="true"></div>
+                                </div>
+                                <div class="col-xs-4 col-sm-4 col-md-2 col-lg-2 addedit-duration no-float">
+                                    <svg class="addedit-icon"><use xlink:href="" ng-href="{{ohs.svg}}#duration" /></svg>
+                                </div>
+                                <div class="col-xs-6 col-sm-8 col-md-4 col-lg-4 addedit-timepicker no-float">
+                                    <table class="uib-timepicker">
+                                        <tbody>
+                                            <tr class="text-center">
+                                                <td class="uib-increment">
+                                                    <a ng-click="ohs.updateDuration(1)" class="btn btn-link" tabindex="0">
+                                                        <span class="glyphicon glyphicon-chevron-up"></span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="form-group uib-time">
+                                                    <input placeholder="&#x2103;" ng-model="ohs.time.duration" ng-change="ohs.updateDuration()" class="form-control text-center ng-pristine ng-untouched ng-valid ng-not-empty ng-valid-maxlength" maxlength="4" tabindex="0" type="text" style="width: 55px;">
+                                                </td>
+                                            </tr>
+                                            <tr class="text-center">
+                                                <td class="uib-decrement">
+                                                    <a ng-click="ohs.updateDuration(-1)" class="btn btn-link" tabindex="0">
+                                                        <span class="glyphicon glyphicon-chevron-down"></span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">&nbsp;</div>
+                        <div class="row">&nbsp;</div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="row">
+                                <div class="btn-group btn-group-justified">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add no-float" ng-if="!ohs.conf.edit" ng-click="ohs.addOrUpdateSchedule();">
+                                        <div class="crud-button">
+                                            <svg class="crud-button-icon"><use xlink:href="" ng-href="{{ohs.svg}}#add" /></svg>
+                                            <span class="crud-button-label">ADD</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 update no-float" ng-if="ohs.conf.edit" ng-click="ohs.addOrUpdateSchedule();">
+                                        <div class="crud-button">
+                                            <svg class="crud-button-icon"><use xlink:href="" ng-href="{{ohs.svg}}#update" /></svg>
+                                            <span class="crud-button-label">UPDATE</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 delete no-float" ng-if="ohs.conf.edit" ng-click="ohs.deleteSchedule();">
+                                        <div class="crud-button">
+                                            <svg class="crud-button-icon"><use xlink:href="" ng-href="{{ohs.svg}}#delete" /></svg>
+                                            <span class="crud-button-label">DELETE</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </uib-tab>
+            <uib-tab index="3" disable="true" classes="running-mode-tab" ng-if="::(!ohs.conf.runningModeHidden)">
+                <uib-tab-heading>
+                    <div class="text-center">
+                        <div class="btn-group" uib-dropdown keyboard-nav>
+                            <button id="simple-btn-keyboard-nav" type="button" class="btn btn-running-mode" uib-dropdown-toggle>
+                                Mode: {{ohs.conf.runningMode | capitalize}} <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="simple-btn-keyboard-nav">
+                                <li role="menuitem" ng-repeat="mode in ohs.conf.modes" ng-click="ohs.changeRunningMode(mode);"><a>{{mode | capitalize}}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </uib-tab-heading>
+            </uib-tab>
+        </uib-tabset>
+    </div>
+</div>

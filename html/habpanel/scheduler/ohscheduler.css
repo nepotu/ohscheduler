@@ -1,0 +1,565 @@
+/* Global */
+/*
+html.ng-scope {
+    --widget-box-shadow: none;
+    --box-bg: transparent;
+    background-color: transparent;
+}*/
+.box-content {
+    padding: 0;
+}
+.nav-tabs-justified li a, .nav-tabs.nav-justified li a {
+    cursor: default !important;
+}
+.OHScheduler {
+    min-height: 100%;
+    height: 100%;
+    background-color: #fff;
+    border: 0;
+    margin: 0;
+    padding: 10px 0;
+    /*
+    -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .14), 0 2px 1px -1px rgba(0, 0, 0, .12);
+	-moz-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .14), 0 2px 1px -1px rgba(0, 0, 0, .12);
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .14), 0 2px 1px -1px rgba(0, 0, 0, .12);
+    box-sizing: content-box;
+    */
+}
+.OHScheduler-container {
+    padding: 0 5px;
+}
+.container-ohs {
+    margin: 20px;
+}
+svg {
+    fill: currentColor;
+}
+.schedule-label {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 900;
+    text-align: center;
+    vertical-align: middle;
+    padding-top: 5%;
+}
+.btn-ohs {
+    color: #303030;
+    background-color: transparent;
+    border-bottom-color: #0000001f;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+}
+.btn-ohs-label, .btn-ohs-value {
+    font-size: 14px;
+    font-weight: 900;
+}
+.btn-ohs-value {
+    color: #777;
+}
+/* Tabs */
+.running-mode-tab {
+    border-bottom: 1px solid #ddd;
+}
+.running-mode-tab a {
+    border: 0 !important;
+    margin-bottom: -3px !important;
+}
+.running-mode-tab li {
+    margin-bottom: -1px !important;
+}
+.btn-running-mode {
+    color: #abc;
+    background-color: transparent;
+    border-color: transparent;
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    white-space: nowrap;
+    padding: 0 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    border-radius: 0;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+/* Add/Edit View */
+.addedit-icon {
+    width: 48px;
+    height: 48px;
+}
+.addedit-time, .addedit-duration {
+    color: grey;
+    text-align: center;
+    padding-top: 30px;
+}
+.addedit-timepicker {
+    padding-left: 12px;
+}
+.btn-day, .btn-item {
+    color: #303030;
+    background-color: transparent;
+    border-color: transparent;
+    border: 0 !important;
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    border-radius: 0;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.btn-day.active, .btn-day:active, .btn-item.active, .btn-item:active {
+    border-bottom: 2px solid #333 !important;
+    -webkit-box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+}
+/* CRUD Buttons */
+.add {
+    padding-left: 0;
+    padding-right: 0;
+}
+.update {
+    padding-left: 0;
+    padding-right: 5px;
+}
+.delete {
+    padding-left: 5px;
+    padding-right: 0;
+}
+.crud-button {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+    color: #808080;
+    border: 1px solid #f0f0f0;
+    border-radius: 0;
+    padding-top: 5px;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.42857;
+    text-align: center;
+    vertical-align: middle;
+}
+.crud-button-icon {
+    width: 24px;
+    height: 24px;
+}
+.crud-button-label {
+    height: 100%;
+    padding-left: 5px;
+    letter-spacing: 2px;
+    color: #808080;
+    font-size: 16px;
+    font-weight: 900;
+}
+/*
+    vis style sheet
+*/
+/* Activator - vis.css */
+.vis .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Must be displayed above for example selected Timeline items */
+  z-index: 10;
+}
+.vis-active {
+  box-shadow: 0 0 10px #86d5f8;
+}
+/* Bootstrap - vis.css */
+.vis [class*="span"] {
+  min-height: 0;
+  width: auto;
+}
+/* Configuration - vis.css */
+/* Tooltip - vis.css */
+/* Timeline - vis.css */
+.vis-timeline {
+    position: relative;
+    border: none; /*border: 1px solid #bfbfbf;*/
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+/* Timeline - Time axis  */
+.vis-time-axis {
+    position: relative;
+    overflow: hidden;
+}
+.vis-time-axis.vis-foreground {
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+.vis-time-axis.vis-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.vis-time-axis .vis-text {
+    position: absolute;
+    color: #4d4d4d;
+    padding: 3px;
+    overflow: hidden;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+.vis-time-axis .vis-text.vis-measure {
+    position: absolute;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    visibility: hidden;
+}
+.vis-time-axis .vis-grid.vis-vertical {
+    position: absolute;
+    border-left: 1px solid;
+}
+.vis-time-axis .vis-grid.vis-vertical-rtl {
+    position: absolute;
+    border-right: 1px solid;
+}
+.vis-time-axis .vis-grid.vis-minor {
+    border-color: transparent; /*border-color: #e5e5e5;*/
+}
+.vis-time-axis .vis-grid.vis-major {
+    border-color: transparent; /*border-color: #bfbfbf;*/
+}
+/* Timeline - Panel */
+.vis-panel {
+    position: absolute;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+.vis-panel.vis-center,
+.vis-panel.vis-left,
+.vis-panel.vis-right,
+.vis-panel.vis-top,
+.vis-panel.vis-bottom {
+    border: 1px #ddd; /*border: 1px #bfbfbf;*/
+}
+.vis-panel.vis-center,
+.vis-panel.vis-left,
+.vis-panel.vis-right {
+    border-top-style: solid;
+    border-bottom-style: solid;
+    overflow: hidden;
+}
+.vis-left.vis-panel.vis-vertical-scroll, .vis-right.vis-panel.vis-vertical-scroll {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+.vis-left.vis-panel.vis-vertical-scroll {
+    direction: rtl;
+}
+.vis-left.vis-panel.vis-vertical-scroll .vis-content {
+    direction: ltr;
+}
+.vis-right.vis-panel.vis-vertical-scroll {
+    direction: ltr;
+}
+.vis-right.vis-panel.vis-vertical-scroll .vis-content {
+    direction: rtl;
+}
+.vis-panel.vis-center,
+.vis-panel.vis-top,
+.vis-panel.vis-bottom {
+    border-left-style: transparent; /*border-left-style: solid;*/
+    border-right-style: transparent; /*border-right-style: solid;*/
+}
+.vis-background {
+    overflow: hidden;
+}
+.vis-panel > .vis-content {
+    position: relative;
+}
+.vis-panel .vis-shadow {
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+.vis-panel .vis-shadow.vis-top {
+    top: -1px;
+    left: 0;
+}
+.vis-panel .vis-shadow.vis-bottom {
+    bottom: -1px;
+    left: 0;
+}
+/* Timeline - Data axis */
+.vis-panel.vis-background.vis-horizontal .vis-grid.vis-horizontal {
+    position: absolute;
+    width: 100%;
+    height: 0;
+    border-bottom: 1px solid;
+}
+.vis-panel.vis-background.vis-horizontal .vis-grid.vis-minor {
+    border-color: #e5e5e5;
+}
+.vis-panel.vis-background.vis-horizontal .vis-grid.vis-major {
+    border-color: #bfbfbf;
+}
+.vis-data-axis .vis-y-axis.vis-major {
+    width: 100%;
+    position: absolute;
+    color: #4d4d4d;
+    white-space: nowrap;
+}
+.vis-data-axis .vis-y-axis.vis-major.vis-measure {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    visibility: hidden;
+    width: auto;
+}
+.vis-data-axis .vis-y-axis.vis-minor {
+    position: absolute;
+    width: 100%;
+    color: #bebebe;
+    white-space: nowrap;
+}
+.vis-data-axis .vis-y-axis.vis-minor.vis-measure {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    visibility: hidden;
+    width: auto;
+}
+/* Timeline - Label Set */
+.vis-labelset {
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+.vis-labelset .vis-label {
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 100%;
+    color: #4d4d4d;
+    box-sizing: border-box;
+}
+.vis-labelset .vis-label {
+    border-bottom: 1px solid #ddd; /*border-bottom: 1px solid #bfbfbf;*/
+}
+.vis-labelset .vis-label.draggable {
+    cursor: pointer;
+}
+.vis-labelset .vis-label:last-child {
+    border-bottom: none;
+}
+.vis-labelset .vis-label .vis-inner {
+    display: inline-block;
+    padding: 5px;
+}
+.vis-labelset .vis-label .vis-inner.vis-hidden {
+    padding: 0;
+}
+/* Timeline - Item */
+.vis-item {
+    font-size: 12px;
+    position: absolute;
+    color: #1A1A1A; /*box: color: white; */
+    border-color: #777; /*border-color: #97B0F8;*/
+    border-width: 1px;
+    background-color: #abc; /*background-color: #D5DDF6;*/
+    display: inline-block;
+    z-index: 1;
+}
+.vis-item.vis-selected {
+    border-color: #303030; /*border-color: #FFC200;*/
+    background-color: #777; /*background-color: #FFF785;*/
+    /* z-index must be higher than the z-index of custom time bar and current time bar */
+    z-index: 2;
+}
+.vis-editable.vis-selected {
+    cursor: move;
+}
+.vis-item.vis-point.vis-selected {
+    background-color: #FFF785;
+}
+.vis-item.vis-box {
+    text-align: center;
+    border-style: solid;
+    border-radius: 2px;
+}
+.vis-item.vis-point {
+    background: none;
+}
+.vis-item.vis-dot {
+    position: absolute;
+    padding: 0;
+    /* Workaround: use the dot in order to display the box item on the right side of the axis */
+    /*
+    border-width: 4px;
+    border-style: solid;
+    border-radius: 4px;
+    */
+} /* Workaround: use the dot in order to display the box item on the right side of the axis */
+.vis-item.vis-selected .vis-item-content {
+    border-color: #303030;
+    background-color: #777;
+    z-index: 2;
+}
+.vis-item.vis-background {
+    border: none;
+    background-color: rgba(213, 221, 246, 0.4);
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+.vis-item .vis-item-overflow {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+.vis-item-visible-frame {
+    white-space: nowrap;
+}
+.vis-item.vis-range .vis-item-content {
+    position: relative;
+    display: inline-block;
+}
+.vis-item.vis-background .vis-item-content {
+    position: absolute;
+    display: inline-block;
+}
+.vis-item.vis-line {
+    padding: 0;
+    position: absolute;
+    width: 0;
+    border-left-width: 1px;
+    border-left-style: transparent; /*border-left-style: solid;*/
+}
+.vis-item .vis-item-content {
+    white-space: nowrap;
+    box-sizing: border-box;
+    padding: 5px;
+    /* Workaround: style the point item as a box */
+    font-size: 12px;
+    font-weight: bold;
+    color: #e5e5e5;
+    background-color: #abc;
+    border-color: #777;
+    border-width: 1px;
+    border-style: solid;
+    text-align: center;
+    border-radius: 2px;
+}
+/* Timeline - Item Set */
+.vis-itemset {
+    position: relative;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+.vis-itemset .vis-background,
+.vis-itemset .vis-foreground {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+.vis-axis {
+    position: absolute;
+    width: 100%;
+    height: 0;
+    left: 0;
+    z-index: 1;
+}
+.vis-foreground .vis-group {
+    position: relative;
+    box-sizing: border-box;
+    border-bottom: 1px solid #ddd; /*border-bottom: 1px solid #bfbfbf; */
+}
+.vis-foreground .vis-group:last-child {
+    border-bottom: none;
+}
+.vis-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+/* Timeline - Animation */
+/* Timeline - Current Time */
+/* Timeline - Custom Time */
+/* Timeline - Path Styles */
+/* Timeline - Extra */
+/* X axis - hide current week day small screen zoom-out */
+.vis-monday, .vis-tuesday, .vis-wednesday, .vis-thursday, .vis-friday, .vis-saturday, .vis-sunday {
+    display: none !important;
+}
+.vis-today {
+    border-right: 1px solid #f8f8f8;
+}
+.vis-h20-h24.vis-today,
+.vis-h23.vis-today {
+    border-right: none !important;
+}
+
+/* Panel Icons */
+.btn-group-panel {
+    font-size: 12px;
+    line-height: 1.5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+.btn-panel {
+    display: inline-block;
+    padding: 2px 4px;
+    margin-bottom: 0;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    background-color: #fff;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    font-size: 14px;
+    line-height: 1.42857143;
+}
+.btn-panel.border-right {
+    border-right: 1px solid #ddd;
+}
+.panel-icon {
+    margin-bottom: -5px;
+    color: #777;
+    width: 24px;
+    height: 24px;
+}

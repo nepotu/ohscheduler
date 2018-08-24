@@ -1,0 +1,32 @@
+// itemtype itemname               "labeltext [stateformat]"              <iconname>    (group1,group2,...)     ["tag1", "tag2", ...] {bindingconfig}
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------- //
+
+// -- Thermostat Items -- //
+Group       grpTemp
+Group       grpTargetTemp
+String      HVAC_Mode              "HVAC Mode [%s]"                       <switch>                              ["HVACMode"]
+String      HVAC_Schedule          "HVAC Schedule [%s]"                   <calendar>                            ["HVACSchedule"]
+String      HVAC_Queue             "HVAC Queue [%s]"                                                            ["HVACQueue"]
+DateTime    HVAC_Next_Change_Time  "HVAC Next Change Time [%1$ta %1$tR]"  <calendar>                            ["HVACNextChange"]
+Number      HVAC_LR_Temp           "Livingroom Temp [%.0f °C]"            <temperature> (grpTemp)               ["LRTemp"]            {}
+Number      HVAC_LR_Target_Temp    "Livingroom Target Temp [%.0f °C]"     <temperature> (grpTemp,grpTargetTemp) ["LRTargetTemp"]
+Number      HVAC_MB_Temp           "Master Bedroom Temp [%.0f °C]"        <temperature> (grpTemp)               ["MBTemp"]            {}
+Number      HVAC_MB_Target_Temp    "Master Bedroom Target Temp [%.0f °C]" <temperature> (grpTemp,grpTargetTemp) ["MBTargetTemp"]
+Number      HVAC_KB_Temp           "Kid's Bedroom Temp [%.0f °C]"         <temperature> (grpTemp)               ["KBTemp"]            {}
+Number      HVAC_KB_Target_Temp    "Kid's Bedroom Target Temp [%.0f °C]"  <temperature> (grpTemp,grpTargetTemp) ["KBTargetTemp"]
+
+// Widget Items: [{"setItem":"HVAC_KB_Target_Temp","readItem":"HVAC_KB_Temp","label":"Kid Bedroom"},{"setItem":"HVAC_LR_Target_Temp","readItem":"HVAC_LR_Temp","label":"Livingroom"},{"setItem":"HVAC_MB_Target_Temp","readItem":"HVAC_MB_Temp","label":"Master Bedroom"}]
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------- //
+
+// -- On Off Appliances Items -- //
+Group       grpOnOff
+String      OnOff_Mode             "On Off Mode [%s]"                     <switch>                              ["OnOffMode"]
+String      OnOff_Schedule         "On Off Schedule [%s]"                 <calendar>                            ["OnOffSchedule"]
+String      OnOff_Queue            "On Off Queue [%s]"                                                          ["OnOffQueue"]
+DateTime    OnOff_Next_Change_Time "HVAC Next Change Time [%1$ta %1$tR]"  <calendar>                            ["OnOffNextChange"]
+Switch      OnOff_SP_Coffee        "Coffee Smart Plug [%s]"               <switch>      (grpOnOff)              ["OnOff_SP_Coffee"]
+Switch      OnOff_SP_TV            "TV Smart Plug [%s]"                   <switch>      (grpOnOff)              ["OnOff_SP_TV"]
+Switch      OnOff_SP_Veranda       "Veranda Smart Plug [%s]"              <switch>      (grpOnOff)              ["OnOff_SP_Veranda"]
+
+// Widget Items: [{"setItem":"OnOff_SP_Coffee","label":"Coffee SP"},{"setItem":"OnOff_SP_TV","label":"TV SP"},{"setItem":"OnOff_SP_Veranda","label":"Veranda SP"}]
